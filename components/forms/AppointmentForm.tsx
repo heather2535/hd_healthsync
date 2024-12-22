@@ -22,7 +22,7 @@ import CustomFormField, { FormFieldType } from "../CustomFormField";
 import SubmitButton from "../SubmitButton";
 import { Form } from "../ui/form";
 
-export const AppointmentForm = ({
+ export const AppointmentForm = ({
   userId,
   patientId,
   type = "create",
@@ -33,7 +33,7 @@ export const AppointmentForm = ({
   patientId: string;
   type: "create" | "schedule" | "cancel";
   appointment?: Appointment;
-  setOpen?: Dispatch<SetStateAction<boolean>>;
+  setOpen: (open: boolean) => void;
 }) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -43,19 +43,15 @@ export const AppointmentForm = ({
   const form = useForm<z.infer<typeof AppointmentFormValidation>>({
     resolver: zodResolver(AppointmentFormValidation),
     defaultValues: {
-      primaryPhysician: appointment ? appointment?.primaryPhysician : "",
-      schedule: appointment
-        ? new Date(appointment?.schedule!)
-        : new Date(Date.now()),
+      primaryPhysician: appointment ? appointment.primaryPhysician : '',
+      schedule: appointment ? new Date(appointment?.schedule) : new Date(Date.now()),
       reason: appointment ? appointment.reason : "",
-      note: appointment?.note || "",
-      cancellationReason: appointment?.cancellationReason || "",
+      note: appointment?.note ||  "",
+      cancellationReason: appointment?.cancellationReason ||  "",
     },
   });
 
-  const onSubmit = async (
-    values: z.infer<typeof AppointmentFormValidation>
-  ) => {
+  async function onSubmit (values: z.infer<typeof AppointmentFormValidation>){
     setIsLoading(true);
 
     let status;
@@ -69,7 +65,7 @@ export const AppointmentForm = ({
       default:
         status = "pending";
     }
-
+console.log({type})
     try {
       if (type === "create" && patientId) {
         const appointment = {
@@ -91,6 +87,7 @@ export const AppointmentForm = ({
           );
         }
       } else {
+        console.log('Updating appointment')
         const appointmentToUpdate = {
           userId,
           appointmentId: appointment?.$id!,
